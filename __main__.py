@@ -24,12 +24,17 @@ COLORS = {
     "S": "9",
 }
 
-def print_nuclide(nucilde: dict) -> None:
+def print_nuclide(nuclide: dict) -> str:
     color = COLORS[nuclide['mode']] if nuclide['mode'] in COLORS else "9"
 
-    print("\033[1;3"+color+"m", end="")
-    print(f"{nuclide['name']} {nuclide['m']} ({nuclide['mode']})"+"\033[0m")
+    result = f"\033[1;3{color}m"
 
+    result += f"{nuclide['name']} {nuclide['m']} ({nuclide['mode']})"+"\033[0m"
+    return result
+
+def trace_nuclide(nuclide: dict) -> list[str]:
+    new_nuclide = chart[nuclide['z']][nuclide['n']]
+    
 print("You selected:")
 nuclide = chart[z][n]
-print_nuclide(nuclide)
+print(print_nuclide(nuclide))
