@@ -7,6 +7,7 @@ with open("data.json", "r") as f:
 chart = dict(dict())
 for i in data:
     i.update( { 'm': i['z'] + i['n'] } ) # TODO: Put this into data file
+    i['life'] = float(i['life']) if i['life'].strip() else 0.0
     if i['z'] not in chart:
         chart.update( { i['z']: { i['n']: i } } )
     else:
@@ -21,7 +22,10 @@ COLORS = {
     "A": "3",
     "B-": "4",
     "B+": "1",
-    
+    "EC+B+": "1",
+    "P": "6",
+    "N": "5",
+    "SF": "2",    
     "S": "9",
 }
 
@@ -29,13 +33,37 @@ def print_nuclide(nuclide: dict) -> str:
     color = COLORS[nuclide['mode']] if nuclide['mode'] in COLORS else "9"
 
     result = f"\033[1;3{color}m"
-
-    result += f"{nuclide['name']} {nuclide['m']} ({nuclide['mode']})"+"\033[0m"
+    
+    result += f"{nuclide['name']:<2} {nuclide['m']:<3} {nuclide['mode']:<5}" + (f"{nuclide['life']:30,.10f}" if nuclide['life'] else "")+"\033[0m"
     return result
 
 def trace_nuclide(nuclide: dict) -> list[str]:
-    new_nuclide = chart[nuclide['z']][nuclide['n']]
-    
-print("You selected:")
+    if nuclide['mode'] == "S":
+        return [print_nuclide(nuclide)]
+    if nuclide['mode'] == "A":
+        x = -2
+        y = -2
+    elif nuclide['mode'] == "B-":
+        x = -1
+        y = 1
+    elif nuclide['mode'] == "EC+B+":
+        x = 1
+        y = -1
+    elif nuclide['mode'] == "N":
+        x = -1
+        y = 0
+    elif nuclide['mode'] == "P":
+        x = 0
+        y = -1
+    else:
+        return [print_nuclide(nuclide)]
+    new_nuclide = chart[nuclide['z']+y][nuclide['n']+x]
+    return [print_nuclide(nuclide), *trace_nuclide(new_nuclide)]    
+
 nuclide = chart[z][n]
-print(print_nuclide(nuclide))
+
+trace = trace_nuclide(nuclide)
+print(f"{len(trace)} Steps:")
+
+for index, step in enumerate(trace):
+    print(f"{index+1:>3}. {step}")
