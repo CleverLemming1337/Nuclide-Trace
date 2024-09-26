@@ -1,4 +1,5 @@
 import json
+from Interactions import *
 
 with open("data.json", "r") as f:
     data = json.load(f)
@@ -11,8 +12,8 @@ for i in data:
     else:
         chart[i['z']].update( { i['n']: i } )
 
-z = int(input("Enter number of protons: "))
-n = int(input("Enter number of neutrons: ")) if input("Search by number of neutrons (N) or by mass number (M)? ").lower() == "n" else int(input("Enter mass number: "))-z 
+z = IntInput("Enter number of protons")
+n = IntInput("Enter number of neutrons: ") if TextInput("Search by number of neutrons (N) or by mass number (M)").lower() == "n" else IntInput("Enter mass number")-z 
 
 isotope = chart[z][n]
 
