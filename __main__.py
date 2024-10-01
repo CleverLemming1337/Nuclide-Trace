@@ -1,5 +1,6 @@
 import json
 from Interactions import *
+from convert import *
 
 with open("data.json", "r") as f:
     data = json.load(f)
@@ -34,7 +35,7 @@ def print_nuclide(nuclide: dict) -> str:
 
     result = f"\033[9{color}m"
     
-    result += f"{nuclide['name']:<2} {nuclide['m']:>3} {nuclide['z']:>3} {nuclide['mode']:<5}" + (f"{nuclide['life']:30,.10f}" if nuclide['life'] else "")+"\033[0m"
+    result += f"{nuclide['name']:<2} {nuclide['m']:>3} {nuclide['z']:>3} {nuclide['mode']:<5}" + (f"{nuclide['life']:30,.10f} {convert(nuclide['life']):>30}" if nuclide['life'] else " ")+"\033[0m"
     return result
 
 def trace_nuclide(nuclide: dict) -> list[str]:
@@ -60,6 +61,33 @@ def trace_nuclide(nuclide: dict) -> list[str]:
     new_nuclide = chart[nuclide['z']+y][nuclide['n']+x]
     return [print_nuclide(nuclide), *trace_nuclide(new_nuclide)]    
 
+def setup_chart():
+    width, height = os.get_terminal_size()
+    print(f"\033[2J\033[{height//2};0H", end="")
+
+def chart_nuclide(nuclide):
+    print(f"\033[A\033[D{nuclide['m']}\033[B{nuclide['name']}", end="")
+
+def chart_arrow(nuclide):
+    if nuclide['mode'] == "A":
+        print(f"   --A-->  ", end="")
+    elif nuclide['mode'] == "B-":
+        print(f"\033[9{COLORS[nuclide['mode']]}m\033[2A\033[2D|\033[A\033[DB-\033[A\033[2D|\033[A\033[D^\033[2A\033[3D", end="")
+
+def chart_trace(nuclide):
+    chart_nuclide(nuclide)
+    chart_arrow(nuclide)
+
+    if nuclide['mode'] == "S":
+        return
+    if nuclide['mode'] == "A":
+        x = -2
+        y = -2
+    elif nuclide['mode'] == "B-":
+        x = -1
+        y = 1
+    chart_trace(chart[nuclide['z']+y][nuclide['n']+x])
+    
 nuclide = chart[z][n]
 
 trace = trace_nuclide(nuclide)
@@ -67,3 +95,7 @@ print(f"{len(trace)} Steps:")
 
 for index, step in enumerate(trace):
     print(f"{index+1:>3}. {step}")
+
+setup_chart()
+chart_trace(nuclide)
+input()
