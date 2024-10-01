@@ -34,7 +34,7 @@ def print_nuclide(nuclide: dict) -> str:
 
     result = f"\033[1;3{color}m"
     
-    result += f"{nuclide['name']:<2} {nuclide['m']:<3} {nuclide['mode']:<5}" + (f"{nuclide['life']:30,.10f}" if nuclide['life'] else "")+"\033[0m"
+    result += f"{nuclide['name']:<2} {nuclide['m']:>3} {nuclide['z']:>3} {nuclide['mode']:<5}" + (f"{nuclide['life']:30,.10f}" if nuclide['life'] else "")+"\033[0m"
     return result
 
 def trace_nuclide(nuclide: dict) -> list[str]:
